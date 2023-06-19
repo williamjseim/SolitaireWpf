@@ -19,57 +19,27 @@ namespace Solitaire
     {
         public Suits suit { get; private set; }
         public CardValue CardValue { get; private set; }
+        public TranslateTransform position { get; set; }
 
-        bool reveled = false;
+        public bool reveled = false;
         BitmapImage? frontSide;
         BitmapImage? BackSide;
+
+        
         public Card(Uri cardFacePath, Suits cardSuit, CardValue cardValue)
         {
             InitializeComponent();
             frontSide = new BitmapImage(cardFacePath);
-            BackSide = new BitmapImage(new Uri("C:\\Users\\zbcwise\\source\\repos\\Solitaire\\Solitaire\\Extra\\PixelPlebes_V1_4x_Update002__Update001_13.png"));
+            BackSide = new BitmapImage(new Uri(System.IO.Path.GetFullPath(@"../../../Extra/BackFace.png")));
             CardImage.Source = BackSide;
             this.suit = cardSuit;
             this.CardValue = cardValue;
-            
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                DataObject data = new();
-                DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
-            }
-        }
-
-        public void RevelCard()
+        public void RevealCard()
         {
             reveled = true;
             CardImage.Source = frontSide;
-        }
-
-        protected override void OnGiveFeedback(GiveFeedbackEventArgs e)
-        {
-            base.OnGiveFeedback(e);
-            if(e.Effects.HasFlag(DragDropEffects.Copy))
-            {
-                Mouse.SetCursor(Cursors.Hand);
-            }
-            else if (e.Effects.HasFlag(DragDropEffects.Move))
-            {
-                Mouse.SetCursor(Cursors.Hand);
-            }
-            e.Handled = true;
-        }
-
-        private void CardImage_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if(reveled && e.LeftButton == MouseButtonState.Pressed)
-            {
-                ((Canvas)this.Parent).Children.Remove(this);
-            }
         }
     }
 }

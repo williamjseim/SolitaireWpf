@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Solitaire
 {
     public enum Suits
     {
         Clubs,
+        Spades,
         Diamonds,
         Hearts,
-        Spades
     }
     public enum CardValue
     {
@@ -37,11 +34,11 @@ namespace Solitaire
             int suit = 0;
             int type = 0;
             List<Card> cards = new();
-            foreach (string folders in Directory.GetDirectories("C:\\Users\\zbcwise\\source\\repos\\Solitaire\\Solitaire\\Cards\\"))
+            foreach (string folders in Directory.GetDirectories(@"../../../Cards"))
             {
                 foreach (string card in Directory.GetFiles(folders))
                 {
-                    cards.Add(new Card(new Uri(card), (Suits)suit, (CardValue)type));
+                    cards.Add(new Card(new Uri(Path.GetFullPath(card)), (Suits)suit, (CardValue)type));
                     type++;
                 }
                 suit++;
