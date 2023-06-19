@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="Solitaire.Card"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Solitaire"
+             mc:Ignorable="d" Height="251" Width="180" UseLayoutRounding="True" RenderOptions.BitmapScalingMode="HighQuality">
+    <Grid>
+        <Image RenderOptions.BitmapScalingMode="HighQuality" Stretch="Fill" Name="CardImage" HorizontalAlignment="Center" Width="180" Height="251" MouseDown="CardImage_MouseDown"/>
+    </Grid>
+</UserControl>

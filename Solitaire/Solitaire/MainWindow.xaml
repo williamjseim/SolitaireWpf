@@ -1,0 +1,44 @@
+﻿<Window x:Class="Solitaire.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Solitaire"
+        xmlns:controls="clr-namespace:Solitaire"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="1080" Width="1920" UseLayoutRounding="True">
+    <Grid Name="GameBoard">
+        <Grid Name="AceGrid" Margin="822,0,0,740" ShowGridLines="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition>
+                </ColumnDefinition>
+                <ColumnDefinition>
+                </ColumnDefinition>
+                <ColumnDefinition>
+                </ColumnDefinition>
+                <ColumnDefinition>
+                </ColumnDefinition>
+            </Grid.ColumnDefinitions>
+        </Grid>
+        <Grid Name="CardGrid" Margin="0,269,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+            </Grid.RowDefinitions>
+            <Canvas Grid.Column="0"></Canvas>
+            <Canvas Grid.Column="1"></Canvas>
+            <Canvas Grid.Column="2"></Canvas>
+            <Canvas Grid.Column="3"></Canvas>
+            <Canvas Grid.Column="4"></Canvas>
+            <Canvas Grid.Column="5"></Canvas>
+            <Canvas Grid.Column="6"></Canvas>
+        </Grid>
+    </Grid>
+</Window>
