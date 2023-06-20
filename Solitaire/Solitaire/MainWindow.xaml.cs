@@ -55,6 +55,7 @@ namespace Solitaire
                     card.HorizontalAlignment = HorizontalAlignment.Center;
                     margin = 50 * canvasColumn.Children.Count+1;
                     card.MouseMove += Card_MoveMouse;
+                    card.MouseDoubleClick += MoveCardToAceGrid;
                     Canvas.SetTop(card, margin);
                     Canvas.SetLeft(card, 50);
                     canvasColumn.Children.Add(card);
@@ -123,7 +124,6 @@ namespace Solitaire
                 if (card.reveled && e.LeftButton == MouseButtonState.Pressed)
                 {
                     card.IsHitTestVisible = false;
-                    Debug.Print(card.CardValue.ToString() + " : " + card.suit.ToString());
                     DragDrop.DoDragDrop(card, new DataObject(DataFormats.Serializable,card), DragDropEffects.Move);
                 }
         }
@@ -136,7 +136,6 @@ namespace Solitaire
                 Debug.Print(card.CardImage.Source.ToString()+"asdwasd");
                 if(sender is Canvas transferCanvas)
                 {
-                    transferCanvas.Background = new SolidColorBrush(Color.FromRgb(250, 250, 0));
                     //int canvasColumn = Grid.GetColumn(transferCanvas);
                     int cardColumn = Grid.GetColumn((Canvas)card.Parent);
                     Canvas originCanvas = (Canvas)card.Parent;
@@ -149,15 +148,14 @@ namespace Solitaire
                         Canvas.SetLeft(card, 0);
                         Canvas.SetTop(card, 0);
                         ReArangeColumn(transferCanvas.Children);
-                        Debug.Print(card.CardValue.ToString() + " : " + card.suit.ToString()+"*");
                         card.IsHitTestVisible = true;
                     }
                     else
                     {
-                        card.IsHitTestVisible = true;
                         Canvas.SetLeft(card, 0);
                         Canvas.SetTop(card, 0);
                         ReArangeColumn(originCanvas.Children);
+                        card.IsHitTestVisible = true;
                     }
                 }
             }
@@ -169,7 +167,7 @@ namespace Solitaire
             if(data is Card card)
             {
                 Point mouse = e.GetPosition((UIElement)card.Parent);
-                Canvas.SetZIndex(card, 1);
+                Panel.SetZIndex(card, 1);
                 Canvas.SetLeft(card,mouse.X-card.Width/2);
                 Canvas.SetTop(card,mouse.Y-card.Height/2);
             }
@@ -185,6 +183,11 @@ namespace Solitaire
             //        ((Canvas)sender).Children.Remove(card);
             //    }
             //}
+        }
+
+        private void MoveCardToAceGrid(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
