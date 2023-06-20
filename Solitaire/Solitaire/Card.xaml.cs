@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,6 @@ namespace Solitaire
     {
         public Suits suit { get; private set; }
         public CardValue CardValue { get; private set; }
-        public TranslateTransform position { get; set; }
 
         public bool reveled = false;
         BitmapImage? frontSide;
@@ -34,12 +34,23 @@ namespace Solitaire
             CardImage.Source = BackSide;
             this.suit = cardSuit;
             this.CardValue = cardValue;
+            this.MouseLeave += Mouse_Leave;
+            this.MouseEnter += Mouse_Enter;
+        }
+
+        void Mouse_Enter(object sender, MouseEventArgs e)
+        {
+        }
+
+        void Mouse_Leave(object sender, MouseEventArgs e)
+        {
         }
 
         public void RevealCard()
         {
             reveled = true;
             CardImage.Source = frontSide;
+            IsHitTestVisible = true;
         }
     }
 }
