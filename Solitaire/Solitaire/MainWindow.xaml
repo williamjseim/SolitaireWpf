@@ -7,40 +7,6 @@
         xmlns:controls="clr-namespace:Solitaire"
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920" UseLayoutRounding="True" Name="window">
-    <Canvas Name="GameBoard">
-        <Grid Name="gameGrid" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1920" Height="1064">
-            <Grid Name="AceGrid" Margin="822,0,0,740" ShowGridLines="False">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition>
-                    </ColumnDefinition>
-                    <ColumnDefinition>
-                    </ColumnDefinition>
-                    <ColumnDefinition>
-                    </ColumnDefinition>
-                    <ColumnDefinition>
-                    </ColumnDefinition>
-                </Grid.ColumnDefinitions>
-            </Grid>
-            <Grid Name="CardGrid" Margin="0,269,0,0" Height="795" VerticalAlignment="Top" HorizontalAlignment="Center" Width="1920" Panel.ZIndex="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition AllowDrop="True"></ColumnDefinition>
-                    <ColumnDefinition AllowDrop="True"></ColumnDefinition>
-                    <ColumnDefinition AllowDrop="True"></ColumnDefinition>
-                    <ColumnDefinition AllowDrop="True"></ColumnDefinition>
-                    <ColumnDefinition AllowDrop="True"></ColumnDefinition>
-                    <ColumnDefinition AllowDrop="True"></ColumnDefinition>
-                    <ColumnDefinition AllowDrop="True"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                </Grid.RowDefinitions>
-                <Canvas Grid.Column="0" AllowDrop="True" Width="auto" Height="auto" Background="Green"></Canvas>
-                <Canvas Grid.Column="1" AllowDrop="True" Width="auto" Height="auto" Background="Green"></Canvas>
-                <Canvas Grid.Column="3" AllowDrop="True" Width="auto" Height="auto" Background="Green"></Canvas>
-                <Canvas Grid.Column="4" AllowDrop="True" Width="auto" Height="auto" Background="Green"></Canvas>
-                <Canvas Grid.Column="2" AllowDrop="True" Width="auto" Height="auto" Background="Green"></Canvas>
-                <Canvas Grid.Column="5" AllowDrop="True" Width="auto" Height="auto" Background="Green"></Canvas>
-                <Canvas Grid.Column="6" AllowDrop="True" Width="auto" Height="auto" Background="Green"></Canvas>
-            </Grid>
-        </Grid>
+    <Canvas Name="GameBoard" Background="White">
     </Canvas>
 </Window>

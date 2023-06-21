@@ -16,10 +16,18 @@ using System.Windows.Shapes;
 
 namespace Solitaire
 {
+    public enum BoardLocation
+    {
+        Deck,
+        Board,
+        Ace
+    }
     public partial class Card : UserControl
     {
         public Suits suit { get; private set; }
         public CardValue CardValue { get; private set; }
+        public BoardLocation location { get; set; }
+        public int column { get; set; }
 
         public bool reveled = false;
         BitmapImage? frontSide;

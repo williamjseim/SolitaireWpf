@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,48 +25,87 @@ namespace Solitaire
     /// </summary>
     public partial class MainWindow : Window
     {
-        //List<Card>[] cardColumns = new List<Card>[]
-        //{
-        //    new List<Card>(),//1
-        //    new List<Card>(),//2
-        //    new List<Card>(),//3
-        //    new List<Card>(),//4
-        //    new List<Card>(),//5
-        //    new List<Card>(),//6
-        //    new List<Card>(),//7
-        //};
+        int[] boardColumns = new int[7];
+        int boardTop;
+        List<Card>[] cardColumns = new List<Card>[]
+        {
+            new List<Card>(),
+            new List<Card>(),
+            new List<Card>(),
+            new List<Card>(),
+            new List<Card>(),
+            new List<Card>(),
+            new List<Card>(),
+        };
 
+        int aceTop = 50;
+
+        int[] aceStacks = new int[4];
+
+        List<Card>[] AceColumns = new List<Card>[]
+        {
+            new List<Card>(),
+            new List<Card>(),
+            new List<Card>(),
+            new List<Card>(),
+        };
 
         public MainWindow()
         {
             InitializeComponent();
+            window.Loaded += Setup;
+        }
+
+        void Setup(object sender, RoutedEventArgs e)
+        {
+            CalculateColumns();
             List<Card> cards = CardContructor.GenerateCards();
-            
             GameBoard.DragOver += Canvas_DragOver;
-            for (int column = 0; column < CardGrid.Children.Count; column++)
+            GameBoard.Drop += Canvas_Drop;
+            GameBoard.AllowDrop = true;
+            for (int column = 0; column < boardColumns.Length; column++)
             {
-                Canvas canvasColumn = (Canvas)CardGrid.Children[column];
-                canvasColumn.Drop += Canvas_Drop;
-                canvasColumn.AllowDrop = true;
+                //Canvas canvasColumn = (Canvas)CardGrid.Children[column];
                 for (int row = 0; row <= column; row++)
                 {
                     int margin = 0;
                     Card card = cards[0];
                     cards.RemoveAt(0);
                     card.HorizontalAlignment = HorizontalAlignment.Center;
-                    margin = 50 * canvasColumn.Children.Count+1;
+                    margin = 50 * cardColumns[column].Count;
                     card.MouseMove += Card_MoveMouse;
-                    card.MouseDoubleClick += MoveCardToAceGrid;
-                    Canvas.SetTop(card, margin);
-                    Canvas.SetLeft(card, 50);
-                    canvasColumn.Children.Add(card);
+                    card.MouseDoubleClick += MoveCardToAceStack;
+                    card.column = column;
+                    card.location = BoardLocation.Board;
+                    Canvas.SetTop(card, margin + boardTop);
+                    Canvas.SetLeft(card, boardColumns[column]);
+                    cardColumns[column].Add(card);
+                    GameBoard.Children.Add(card);
                 }
             }
-            foreach (var item in CardGrid.Children)
+            foreach (var item in cardColumns)
             {
-                if (item is Canvas canvas)
-                    ((Card)canvas.Children[canvas.Children.Count - 1]).RevealCard();
+                item.Last().RevealCard();
             }
+            for (int i = 3; i < boardColumns.Length; i++)
+            {
+                aceStacks[i-3] = boardColumns[i];
+            }
+        }
+
+        void CalculateColumns()
+        {
+            double height = window.ActualHeight;
+            double width = window.ActualWidth;
+
+            Debug.Print(height + " " + width);
+
+            double rowWidth = width / 7;
+            for (int i = 0; i < 7; i++)
+            {
+                boardColumns[i] = (int)(rowWidth * (i)) + 50;
+            }
+            boardTop = (int)(height / 3);
         }
 
         bool CanCardBeAdded(UIElementCollection canvasChildren, int cardColumn, Card card)
@@ -107,14 +147,32 @@ namespace Solitaire
             return false;
         }
 
-        void ReArangeColumn(UIElementCollection cards)
+        void ReArrangeColumn()
         {
-            int i = 0;
-            foreach (UIElement child in cards)
+            for (int i = 0; i < cardColumns.Length; i++)
             {
-                Canvas.SetTop(child, i);
-                Canvas.SetLeft(child, 50);
-                i += 50;
+                int j = 0;
+                foreach (Card card in cardColumns[i])
+                {
+                    Canvas.SetTop(card, j+boardTop);
+                    Canvas.SetLeft(card, boardColumns[i]);
+                    j += 50;
+                }
+            }
+        }
+
+        void ReArrangeAceColumn()
+        {
+            for (int i = 0; i < AceColumns.Length; i++)
+            {
+                if (AceColumns[i].Count > 0)
+                {
+                    foreach (Card card in AceColumns[i])
+                    {
+                        Canvas.SetZIndex(card, 0);
+                    }
+                    Canvas.SetZIndex(AceColumns[i].Last(), 1);
+                }
             }
         }
 
@@ -124,6 +182,7 @@ namespace Solitaire
                 if (card.reveled && e.LeftButton == MouseButtonState.Pressed)
                 {
                     card.IsHitTestVisible = false;
+                    Canvas.SetZIndex(card, 50);
                     DragDrop.DoDragDrop(card, new DataObject(DataFormats.Serializable,card), DragDropEffects.Move);
                 }
         }
@@ -133,31 +192,71 @@ namespace Solitaire
             object data = e.Data.GetData(DataFormats.Serializable);
             if(data is Card card)
             {
-                Debug.Print(card.CardImage.Source.ToString()+"asdwasd");
+                card.IsHitTestVisible = true;
                 if(sender is Canvas transferCanvas)
                 {
-                    //int canvasColumn = Grid.GetColumn(transferCanvas);
-                    int cardColumn = Grid.GetColumn((Canvas)card.Parent);
-                    Canvas originCanvas = (Canvas)card.Parent;
-                    if (CanCardBeAdded(transferCanvas.Children, cardColumn, card))
+                    int top = boardTop - 125;
+                    if (Canvas.GetTop(card) > top)
                     {
-                        originCanvas.Children.Remove(card);
-                        transferCanvas.Children.Add(card);
-                        if (originCanvas.Children.Count > 0)
-                            ((Card)originCanvas.Children[originCanvas.Children.Count - 1]).RevealCard();
-                        Canvas.SetLeft(card, 0);
-                        Canvas.SetTop(card, 0);
-                        ReArangeColumn(transferCanvas.Children);
-                        card.IsHitTestVisible = true;
+                        int column = boardColumns.Where(x => x < Canvas.GetLeft(card) + (card.Width/2)).Count()-1;
+                        Canvas.SetLeft(card, boardColumns[column]);
+                        ChangeCardColumn(card, column);
+                        ReArrangeColumn();
+                    }
+                    else if (Canvas.GetTop(card) < top && aceStacks.Where(x=>x < Canvas.GetLeft(card)).Any())
+                    {
+                        int column = aceStacks.Where(x => x < Canvas.GetLeft(card) + (card.Width / 2)).Count()-1;
+                        Canvas.SetLeft(card, aceStacks[column]);
+                        Canvas.SetTop(card, aceTop);
+                        ChangeAceColumn(card, column);
                     }
                     else
                     {
-                        Canvas.SetLeft(card, 0);
-                        Canvas.SetTop(card, 0);
-                        ReArangeColumn(originCanvas.Children);
-                        card.IsHitTestVisible = true;
+                        ReArrangeColumn();
                     }
+                    //if (CanCardBeAdded(transferCanvas.Children, cardColumn, card))
+                    //{
+                    //}
+                    //else
+                    //{
+                    //    Canvas.SetLeft(card, 0);
+                    //    Canvas.SetTop(card, 0);
+                    //    ReArrangeColumn();
+                    //    card.IsHitTestVisible = true;
+                    //}
                 }
+            }
+        }
+
+        void ChangeCardColumn(Card card, int desiredColumn)
+        {
+            if(Canvas.GetTop(card) > boardTop-125)
+            {
+                cardColumns[card.column].Remove(card);
+                RevealLastCardInColumn(card.column);
+                cardColumns[desiredColumn].Add(card);
+                Canvas.SetZIndex(card, cardColumns[desiredColumn].Count);
+                card.column = desiredColumn;
+                if(card.location != BoardLocation.Board)
+                {
+                    card.location = BoardLocation.Board;
+                    ReArrangeAceColumn();
+                }
+            }
+            else
+            {
+                ReArrangeColumn();
+            }
+        }
+
+        void ChangeAceColumn(Card card, int desiredColumn)
+        {
+            if(card.location == BoardLocation.Board)
+            {
+                cardColumns[card.column].Remove(card);
+                RevealLastCardInColumn(card.column);
+                AceColumns[desiredColumn].Add(card);
+                ReArrangeAceColumn();
             }
         }
 
@@ -167,27 +266,39 @@ namespace Solitaire
             if(data is Card card)
             {
                 Point mouse = e.GetPosition((UIElement)card.Parent);
-                Panel.SetZIndex(card, 1);
                 Canvas.SetLeft(card,mouse.X-card.Width/2);
                 Canvas.SetTop(card,mouse.Y-card.Height/2);
             }
         }
 
-        private void Canvas_DragLeave(object sender, DragEventArgs e)
+        private void MoveCardToAceStack(object sender, MouseButtonEventArgs e)
         {
-            //if(e.OriginalSource is Canvas)
-            //{
-            //    object data = e.Data.GetData(DataFormats.Serializable);
-            //    if (data is Card card)
-            //    {
-            //        ((Canvas)sender).Children.Remove(card);
-            //    }
-            //}
+            if(sender is Card card && card.location != BoardLocation.Ace)
+            {
+                for (int i = 0; i < AceColumns.Length; i++)
+                {
+                    if (AceColumns[i].Count == 0)
+                    {
+                        cardColumns[card.column].Remove(card);
+                        RevealLastCardInColumn(card.column);
+                        AceColumns[i].Add(card);
+                        card.location = BoardLocation.Ace;
+                        card.column = i;
+                        Canvas.SetLeft(card, aceStacks[i]);
+                        Canvas.SetTop(card, aceTop);
+                        break;
+                    }
+                }
+                ReArrangeAceColumn();
+            }
         }
 
-        private void MoveCardToAceGrid(object sender, MouseButtonEventArgs e)
+        void RevealLastCardInColumn(int column)
         {
-
+            if (cardColumns[column].Count > 0)
+            {
+                cardColumns[column].Last().RevealCard();
+            }
         }
     }
 }
