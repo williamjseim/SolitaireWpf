@@ -33,7 +33,10 @@ namespace Solitaire
         BitmapImage? frontSide;
         BitmapImage? BackSide;
 
-        
+        public Card()
+        {
+            
+        }
         public Card(Uri cardFacePath, Suits cardSuit, CardValue cardValue)
         {
             InitializeComponent();
