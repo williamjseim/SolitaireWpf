@@ -36,9 +36,9 @@ namespace Solitaire
             List<Card> cards = new();
             foreach (string folders in Directory.GetDirectories(@"../../../Cards"))
             {
-                foreach (string card in Directory.GetFiles(folders))
+                for (int i = 0; i < Directory.GetFiles(folders).Length; i++)
                 {
-                    cards.Add(new Card(new Uri(Path.GetFullPath(card)), (Suits)suit, (CardValue)type));
+                    cards.Add(new Card(new Uri(Path.GetFullPath(folders+$"/{i+1}.png")), (Suits)suit, (CardValue)type));
                     type++;
                 }
                 suit++;

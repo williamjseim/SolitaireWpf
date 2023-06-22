@@ -29,20 +29,20 @@ namespace Solitaire
         public BoardLocation location { get; set; }
         public int column { get; set; }
 
-        public bool reveled = false;
+        public bool IsRevealed = false;
         BitmapImage? frontSide;
         BitmapImage? BackSide;
+        public BitmapImage? currentImage;
 
         public Card()
         {
-            
-        }
-        public Card(Uri cardFacePath, Suits cardSuit, CardValue cardValue)
-        {
             InitializeComponent();
-            frontSide = new BitmapImage(cardFacePath);
             BackSide = new BitmapImage(new Uri(System.IO.Path.GetFullPath(@"../../../Extra/BackFace.png")));
             CardImage.Source = BackSide;
+        }
+        public Card(Uri cardFacePath, Suits cardSuit, CardValue cardValue) : this()
+        {
+            frontSide = new BitmapImage(cardFacePath);
             this.suit = cardSuit;
             this.CardValue = cardValue;
             this.MouseLeave += Mouse_Leave;
@@ -57,11 +57,16 @@ namespace Solitaire
         {
         }
 
-        public void RevealCard()
+        public void RevealCard(bool hitTestVisible = true)
         {
-            reveled = true;
+            IsRevealed = true;
             CardImage.Source = frontSide;
-            IsHitTestVisible = true;
+            IsHitTestVisible = hitTestVisible;
+        }
+
+        public override string ToString()
+        {
+            return $"value {CardValue} suit {suit}";
         }
     }
 }
