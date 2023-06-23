@@ -6,10 +6,10 @@ namespace Solitaire
 {
     public enum Suits
     {
-        Clubs,
-        Spades,
-        Diamonds,
-        Hearts,
+        Clubs=0,
+        Spades=1,
+        Diamonds=2,
+        Hearts=3,
     }
     public enum CardValue
     {

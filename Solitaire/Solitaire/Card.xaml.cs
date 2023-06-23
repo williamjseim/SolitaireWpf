@@ -16,6 +16,12 @@ using System.Windows.Shapes;
 
 namespace Solitaire
 {
+
+    public enum CardColor
+    {
+        R,
+        B
+    }
     public enum BoardLocation
     {
         Deck,
@@ -29,10 +35,17 @@ namespace Solitaire
         public BoardLocation location { get; set; }
         public int column { get; set; }
 
+        public CardColor Color { get { return GetColor(); } }
+
         public bool IsRevealed = false;
         BitmapImage? frontSide;
         BitmapImage? BackSide;
         public BitmapImage? currentImage;
+
+        CardColor GetColor()
+        {
+            return suit == (Suits.Clubs | Suits.Spades) ? CardColor.B : CardColor.R;
+        }
 
         public Card()
         {
