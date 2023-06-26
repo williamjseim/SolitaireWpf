@@ -37,7 +37,7 @@ namespace Solitaire
             new List<Card>(),
         };
 
-        int aceTop = 50;
+        int aceTop;
 
         int[] aceStacks = new int[4];
 
@@ -135,6 +135,7 @@ namespace Solitaire
         {
             double height = view.window.ActualHeight;
             double width = view.window.ActualWidth;
+            aceTop = (int)view.window.ActualHeight / 20;
 
             rowWidth = width / 7;
             for (int i = 0; i < 7; i++)
@@ -287,7 +288,7 @@ namespace Solitaire
                     if (Canvas.GetTop(card) > top)
                     {
                         int column = boardColumns.Where(x => x < Canvas.GetLeft(card) + (card.Width / 2)).Count() - 1;
-                        if(CanCardBeAdded(card, column))
+                        if(CanCardBeAdded(card, column, BoardLocation.Board))
                         {
                             Canvas.SetLeft(card, boardColumns[column]);
                             ChangeCardColumn(card, column);
