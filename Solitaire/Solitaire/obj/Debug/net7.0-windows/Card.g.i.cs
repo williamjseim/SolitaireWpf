@@ -61,7 +61,7 @@ namespace Solitaire {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Solitaire;component/card.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Solitaire;V1.0.0.0;component/card.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\Card.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

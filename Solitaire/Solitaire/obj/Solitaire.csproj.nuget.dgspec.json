@@ -1,25 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\zbcwise\\Documents\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\Solitaire.csproj": {}
+    "F:\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\Solitaire.csproj": {}
   },
   "projects": {
-    "C:\\Users\\zbcwise\\Documents\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\Solitaire.csproj": {
+    "F:\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\Solitaire.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\zbcwise\\Documents\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\Solitaire.csproj",
+        "projectUniqueName": "F:\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\Solitaire.csproj",
         "projectName": "Solitaire",
-        "projectPath": "C:\\Users\\zbcwise\\Documents\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\Solitaire.csproj",
-        "packagesPath": "C:\\Users\\zbcwise\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\zbcwise\\Documents\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\obj\\",
+        "projectPath": "F:\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\Solitaire.csproj",
+        "packagesPath": "C:\\Users\\Spurgt fuglen\\.nuget\\packages\\",
+        "outputPath": "F:\\GitHub\\SolitaireWpf\\Solitaire\\Solitaire\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Users\\zbcwise\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder",
+          "C:\\Users\\Spurgt fuglen\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder",
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\zbcwise\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Users\\zbcwise\\AppData\\Roaming\\NuGet\\config\\Godot.Offline.Config",
+          "C:\\Users\\Spurgt fuglen\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Spurgt fuglen\\AppData\\Roaming\\NuGet\\config\\Godot.Offline.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
