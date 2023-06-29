@@ -44,7 +44,7 @@ namespace Solitaire
 
         CardColor GetColor()
         {
-            return suit == (Suits.Clubs | Suits.Spades) ? CardColor.B : CardColor.R;
+            return (int)suit <= 1 ? CardColor.B : CardColor.R;
         }
 
         public Card()
@@ -79,7 +79,7 @@ namespace Solitaire
 
         public override string ToString()
         {
-            return $"value {CardValue} suit {suit}";
+            return $"value {CardValue} suit {suit} colar {GetColor()}";
         }
     }
 }
