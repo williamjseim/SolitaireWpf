@@ -42,10 +42,10 @@ namespace Solitaire
                     margin = 50 * board.BoardColumns[column].Count;
                     //card.MouseLeftButtonDown += Card_Pickup;
                     card.MouseMove += Card_MoveMouse;
-                    card.MouseDoubleClick += MoveCardToAceStack;
-                    card.MouseEnter += HighLightCard;
-                    card.MouseLeave += DeHighLightCard;
-                    card.MouseRightButtonDown += CardToString;
+                    //card.MouseDoubleClick += MoveCardToAceStack;
+                    //card.MouseEnter += HighLightCard;
+                    //card.MouseLeave += DeHighLightCard;
+                    //card.MouseRightButtonDown += CardToString;
                     card.column = column;
                     card.location = BoardLocation.Board;
                     Canvas.SetTop(card, margin + board.BoardMiddle);
@@ -65,6 +65,10 @@ namespace Solitaire
                 card.column = 0;
                 card.location = BoardLocation.Deck;
                 card.MouseRightButtonDown += CardToString;
+                Canvas.SetLeft(card, board.BoardColumnPositions[0]);
+                Canvas.SetTop(card, board.aceTop);
+                card.Visibility = Visibility.Hidden;
+                view.GameBoard.Children.Add(card);
             }
             for (int i = 3; i < board.BoardColumnPositions.Length; i++)
             {
@@ -74,13 +78,6 @@ namespace Solitaire
             Canvas.SetTop(board.cardStackPlaceHolder, board.aceTop);
             view.GameBoard.Children.Add(board.cardStackPlaceHolder);
             Canvas.SetZIndex(board.cardStackPlaceHolder, 1);
-            foreach (Card card in cards)
-            {
-                Canvas.SetLeft(card, board.BoardColumnPositions[0]);
-                Canvas.SetTop(card, board.aceTop);
-                card.Visibility = Visibility.Hidden;
-                view.GameBoard.Children.Add(card);
-            }
             board.cardStackPlaceHolder.MouseLeftButtonDown += TakeCardsFromStack;
             board.cardQueue = new Queue<Card>(cards);
         }
@@ -187,21 +184,21 @@ namespace Solitaire
             }
         }
 
-        public void Card_Pickup(object sender, MouseEventArgs e)
-        {
-            if (sender is Card card && card.location == BoardLocation.Board)
-            {
-                int i = board.BoardColumns[card.column].IndexOf(card);
-                if (board.BoardColumns[card.column].Count > i)
-                {
-                    for (int j = i; j < board.BoardColumns[card.column].Count; j++)
-                    {
-                        Card obj = board.BoardColumns[card.column][j - 1];
+        //public void Card_Pickup(object sender, MouseEventArgs e)
+        //{
+        //    if (sender is Card card && card.location == BoardLocation.Board)
+        //    {
+        //        int i = board.BoardColumns[card.column].IndexOf(card);
+        //        if (board.BoardColumns[card.column].Count > i)
+        //        {
+        //            for (int j = i; j < board.BoardColumns[card.column].Count; j++)
+        //            {
+        //                Card obj = board.BoardColumns[card.column][j - 1];
 
-                    }
-                }
-            }
-        }
+        //            }
+        //        }
+        //    }
+        //}
 
         public void Card_MoveMouse(object sender, MouseEventArgs e)
         {
