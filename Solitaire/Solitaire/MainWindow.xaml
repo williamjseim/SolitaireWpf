@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Solitaire"
         xmlns:controls="clr-namespace:Solitaire"
         mc:Ignorable="d"
+        AllowDrop="True"
         Title="MainWindow" Height="1080" Width="1920" UseLayoutRounding="True" Name="window">
-    <Canvas Name="GameBoard" Background="White">
+    <Canvas Name="GameBoard" Background="White" AllowDrop="True">
     </Canvas>
 </Window>

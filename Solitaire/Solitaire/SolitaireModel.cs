@@ -7,8 +7,6 @@ using System.Windows;
 using System.Windows.Data;
 using Solitaire;
 using System;
-using System.Data.Common;
-using System.Security.AccessControl;
 
 namespace Solitaire
 {
@@ -51,7 +49,7 @@ namespace Solitaire
                     Canvas.SetTop(card, margin + board.BoardMiddle);
                     Canvas.SetLeft(card, board.BoardColumnPositions[column]);
                     board.BoardColumns[column].Add(card);
-                    view.GameBoard.Children.Add(card);
+                    view?.GameBoard.Children.Add(card);
                 }
             }
             foreach (var card in board.BoardColumns)
@@ -68,7 +66,7 @@ namespace Solitaire
                 Canvas.SetLeft(card, board.BoardColumnPositions[0]);
                 Canvas.SetTop(card, board.aceTop);
                 card.Visibility = Visibility.Hidden;
-                view.GameBoard.Children.Add(card);
+                view?.GameBoard.Children.Add(card);
             }
             for (int i = 3; i < board.BoardColumnPositions.Length; i++)
             {
@@ -76,7 +74,7 @@ namespace Solitaire
             }
             Canvas.SetLeft(board.cardStackPlaceHolder, board.BoardColumnPositions[0]);
             Canvas.SetTop(board.cardStackPlaceHolder, board.aceTop);
-            view.GameBoard.Children.Add(board.cardStackPlaceHolder);
+            view?.GameBoard.Children.Add(board.cardStackPlaceHolder);
             Canvas.SetZIndex(board.cardStackPlaceHolder, 1);
             board.cardStackPlaceHolder.MouseLeftButtonDown += TakeCardsFromStack;
             board.cardQueue = new Queue<Card>(cards);
@@ -207,7 +205,9 @@ namespace Solitaire
                 {
                     card.IsHitTestVisible = false;
                     Panel.SetZIndex(card, 50);
-                    DragDrop.DoDragDrop(card, new DataObject(DataFormats.Serializable, card), DragDropEffects.Move);
+                    DataObject dataObject = new DataObject();
+                    dataObject.SetData(DataFormats.Serializable, card);
+                    DragDrop.DoDragDrop(sender as Card, dataObject, DragDropEffects.Move);
                 }
         }
 
@@ -222,12 +222,12 @@ namespace Solitaire
                     int top = board.BoardMiddle - 125;
                     if (Canvas.GetTop(card) > top)
                     {
-                        int column = board.BoardColumnPositions.Where(x => x < Canvas.GetLeft(card) + (card.Width / 2)).Count() - 1;
+                        int column = board.BoardColumnPositions.Where(x => x < Canvas.GetLeft(card) + (card.ActualWidth / 2)).Count() - 1;
                         TryChangeCardPosition(card, BoardLocation.Board, column);
                     }
                     else if (Canvas.GetTop(card) < top && board.aceStacks.Where(x => x < Canvas.GetLeft(card)).Any())
                     {
-                        int column = board.aceStacks.Where(x => x < Canvas.GetLeft(card) + (card.Width / 2)).Count() - 1;
+                        int column = board.aceStacks.Where(x => x < Canvas.GetLeft(card) + (card.ActualWidth / 2)).Count() - 1;
                         TryChangeCardPosition(card, BoardLocation.Ace, column);
                     }
                     else
@@ -293,9 +293,9 @@ namespace Solitaire
             object data = e.Data.GetData(DataFormats.Serializable);
             if (data is Card card)
             {
-                Point mouse = e.GetPosition((UIElement)card.Parent);
-                Canvas.SetLeft(card, mouse.X - card.Width / 2);
-                Canvas.SetTop(card, mouse.Y - card.Height / 2);
+                Point mouse = e.GetPosition(view?.GameBoard);
+                Canvas.SetLeft(card, mouse.X - card.ActualWidth / 2);
+                Canvas.SetTop(card, mouse.Y - card.ActualHeight / 2);
             }
         }
 

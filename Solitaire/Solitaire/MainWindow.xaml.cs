@@ -26,15 +26,15 @@ namespace Solitaire
     /// </summary>
     public partial class MainWindow : Window
     {
-        new SolitaireModel model = new();
+        SolitaireModel solitaireModel = new();
         public MainWindow()
         {
             InitializeComponent();
-            model.view = this;
-            window.Loaded += model.Setup;
-            window.SizeChanged += model.ReArrangeGameBoard;
-            GameBoard.DragOver += model.Canvas_DragOver;
-            GameBoard.Drop += model.Canvas_Drop;
+            solitaireModel.view = this;
+            window.Loaded += solitaireModel.Setup;
+            window.SizeChanged += solitaireModel.ReArrangeGameBoard;
+            GameBoard.DragOver += solitaireModel.Canvas_DragOver;
+            GameBoard.Drop += solitaireModel.Canvas_Drop;
             GameBoard.AllowDrop = true;
         }
 
