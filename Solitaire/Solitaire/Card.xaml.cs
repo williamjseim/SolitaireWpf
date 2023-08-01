@@ -79,7 +79,7 @@ namespace Solitaire
 
         public override string ToString()
         {
-            return $"value {CardValue} suit {suit} colar {GetColor()}";
+            return $"Value {CardValue} Suit {suit} Color {GetColor()}";
         }
     }
 }
