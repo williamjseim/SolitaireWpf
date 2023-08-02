@@ -37,7 +37,17 @@ namespace Solitaire
 
         public CardColor Color { get { return GetColor(); } }
 
-        public bool IsRevealed = false;
+        private bool _isRevealed = false;
+        public bool IsRevealed { get { return _isRevealed; } 
+            set 
+            { 
+                if (value != _isRevealed) 
+                {
+                    _isRevealed = value;
+                    RevealCard(value);
+                }
+            }
+        }
         BitmapImage? frontSide;
         BitmapImage? BackSide;
         public BitmapImage? currentImage;
@@ -70,7 +80,7 @@ namespace Solitaire
         {
         }
 
-        public void RevealCard(bool hitTestVisible = true)
+        private void RevealCard(bool hitTestVisible = true)
         {
             IsRevealed = true;
             CardImage.Source = frontSide;

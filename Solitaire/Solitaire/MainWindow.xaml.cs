@@ -36,6 +36,7 @@ namespace Solitaire
             GameBoard.DragOver += solitaireModel.Canvas_DragOver;
             GameBoard.Drop += solitaireModel.Canvas_Drop;
             GameBoard.AllowDrop = true;
+            Undo.Click += solitaireModel.Undo;
         }
 
 

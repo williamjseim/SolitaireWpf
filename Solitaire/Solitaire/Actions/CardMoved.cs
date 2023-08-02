@@ -3,6 +3,7 @@
     public class CardMoved : Action, IUndo
     {
         public int lastColumn { get; set; }
+        public int lastColumnIndex { get; set; }
         public BoardLocation LastLocation { get; set; }
         public CardMoved(Card card, BoardLocation oldLocation, int oldColumn) : base(card)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Solitaire.Actions
 {
-    public class Action
+    public abstract class Action
     {
         public Card card { get; set; }
 
