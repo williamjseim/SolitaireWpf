@@ -9,6 +9,6 @@
         AllowDrop="True"
         Title="MainWindow" Height="1080" Width="1920" UseLayoutRounding="True" Name="window">
     <Canvas Name="GameBoard" Background="White" AllowDrop="True">
-        <Button Name="Undo"  Content="Undo" Canvas.Top="384" HorizontalAlignment="Left" VerticalAlignment="Top" Height="61" Width="138" Panel.ZIndex="50" Canvas.Left="1080"/>
+        <Button Name="Undo"  Content="Undo" Canvas.Top="10" HorizontalAlignment="Left" VerticalAlignment="Top" Height="61" Width="138" Panel.ZIndex="50" Canvas.Left="1772"/>
     </Canvas>
 </Window>

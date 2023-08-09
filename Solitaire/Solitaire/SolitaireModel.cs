@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Solitaire.Actions;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows;
-using System.Windows.Data;
-using Solitaire;
-using System;
-using Solitaire.Actions;
 
 namespace Solitaire
 {
@@ -84,7 +82,7 @@ namespace Solitaire
             view?.GameBoard.Children.Add(board.cardStackPlaceHolder);
             Canvas.SetZIndex(board.cardStackPlaceHolder, 1);
             board.cardStackPlaceHolder.MouseLeftButtonDown += TakeCardsFromStack;
-            board.cardQueue = new Queue<Card>(cards);
+            board.cardQueue = new LinkedList<Card>(cards);
         }
 
         #region Rearrange
@@ -397,14 +395,16 @@ namespace Solitaire
         }
         void TakeCardsFromStack(object sender, MouseButtonEventArgs e)
         {
-            if (board.cardQueue.Count > 0)
+            if (board.cardQueue?.Count > 0)
             {
                 for (int i = 0; i < Math.Clamp(board.cardQueue.Count, 0, amountFromStack); i++)
                 {
-                    Card card = board.cardQueue.Dequeue();
+                    Card card = board.cardQueue.First();
+                    board.cardQueue.RemoveFirst();
                     board.cardPool.Add(card);
                     card.Visibility = Visibility.Visible;
                     RevealCard(card);
+                    CreateCardPoolAction(card);
                 }
                 if (board.cardQueue.Count == 0)
                 {
@@ -568,7 +568,7 @@ namespace Solitaire
         private void RevealCard(Card card, bool hitTest = true)
         {
             card.IsRevealed = hitTest;
-            CreateCardTurnedAction(card);
+            card.IsHitTestVisible = hitTest;
         }
 
         #region Action
@@ -583,6 +583,7 @@ namespace Solitaire
                 if(actions.Peek() is CardMoved obj)
                 {
                     RemoveCardFromParent(obj.card);
+                    HideLastCard(obj.LastLocation, obj.lastColumn);
                     AddCardToNewParent(obj.card, obj.LastLocation, obj.lastColumn);
                     ReArrangeGameBoard();
                     actions.Dequeue();
@@ -592,17 +593,44 @@ namespace Solitaire
                     revealedCard.card.IsRevealed = false;
                     actions.Dequeue();
                 }
+                else if(actions.Peek() is CardPoolAction cardTurned)
+                {
+                    if (board.cardPool.Contains(cardTurned.card))
+                    {
+                        board.cardPool.Remove(cardTurned.card);
+                        board.cardQueue?.AddFirst(cardTurned.card);
+                    }
+                    else if(board.cardQueue.Contains(cardTurned.card))
+                    {
+                        board.cardQueue.Remove(cardTurned.card);
+                        board.cardPool.Add(cardTurned.card);
+                    }
+                    actions.Dequeue();
+                    ReArrangeGameBoard();
+                }
             }
+        }
+
+        private void HideLastCard(BoardLocation location, int column)
+        {
+            if(location == BoardLocation.Board)
+            {
+                board.BoardColumns[column].Last().HideCard();
+            }
+            else if(location == BoardLocation.Deck)
+            {
+                board.cardPool.Last().IsHitTestVisible = false;
+            }
+        }
+
+        private void CreateCardPoolAction(Card card)
+        {
+            actions.Enqueue(new CardPoolAction(card));
         }
 
         public void CreateCardMovedAction(Card card, BoardLocation oldLocation, int oldColumn)
         {
             actions.Enqueue(new CardMoved(card, oldLocation, oldColumn));
-        }
-
-        public void CreateCardTurnedAction(Card card)
-        {
-            actions.Enqueue(new CardRevealed(card));
         }
 
         #endregion
@@ -616,7 +644,7 @@ namespace Solitaire
             cardPool = new();
         }
 
-        public Queue<Card>? cardQueue;
+        public LinkedList<Card>? cardQueue;
         public Card cardStackPlaceHolder;
         public List<Card> cardPool;
 

@@ -80,11 +80,18 @@ namespace Solitaire
         {
         }
 
-        private void RevealCard(bool hitTestVisible = true)
+        private void RevealCard(bool hitTestVisible)
         {
             IsRevealed = true;
             CardImage.Source = frontSide;
             IsHitTestVisible = hitTestVisible;
+        }
+
+        public void HideCard()
+        {
+            _isRevealed = false;
+            CardImage.Source = BackSide;
+            IsHitTestVisible = false;
         }
 
         public override string ToString()

@@ -6,18 +6,11 @@ using System.Threading.Tasks;
 
 namespace Solitaire.Actions
 {
-    public class CardPoolAction : IUndo
+    public class CardPoolAction : Action
     {
-        public Card[] cards;
-
-        public CardPoolAction(Card[] pulledCards)
+        public CardPoolAction(Card card) : base(card)
         {
-            cards = pulledCards;
-        }
 
-        public void Undo()
-        {
-            throw new NotImplementedException();
         }
     }
 }
