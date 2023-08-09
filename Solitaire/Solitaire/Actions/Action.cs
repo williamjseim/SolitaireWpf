@@ -8,9 +8,9 @@ namespace Solitaire.Actions
 {
     public abstract class Action
     {
-        public Card card { get; set; }
+        public Card[] card { get; set; }
 
-        public Action(Card card)
+        public Action(Card[] card)
         {
             this.card = card;
         }

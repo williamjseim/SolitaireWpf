@@ -8,7 +8,7 @@ namespace Solitaire.Actions
 {
     internal class CardRevealed : Action, IUndo
     {
-        public CardRevealed(Card card) : base(card)
+        public CardRevealed(Card[] card) : base(card)
         {
             
         }

@@ -5,7 +5,7 @@
         public int lastColumn { get; set; }
         public int lastColumnIndex { get; set; }
         public BoardLocation LastLocation { get; set; }
-        public CardMoved(Card card, BoardLocation oldLocation, int oldColumn) : base(card)
+        public CardMoved(Card[] card, BoardLocation oldLocation, int oldColumn) : base(card)
         {
             this.lastColumn = oldColumn;
             this.LastLocation = oldLocation;

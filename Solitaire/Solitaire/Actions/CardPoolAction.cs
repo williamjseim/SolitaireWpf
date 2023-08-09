@@ -8,7 +8,7 @@ namespace Solitaire.Actions
 {
     public class CardPoolAction : Action
     {
-        public CardPoolAction(Card card) : base(card)
+        public CardPoolAction(Card[] card) : base(card)
         {
 
         }
