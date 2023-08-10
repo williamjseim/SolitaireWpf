@@ -50,7 +50,6 @@ C:\Users\zbcwise\Documents\GitHub\SolitaireWpf\Solitaire\Solitaire\bin\Debug\net
 C:\Users\zbcwise\Documents\GitHub\SolitaireWpf\Solitaire\Solitaire\bin\Debug\net7.0-windows\Solitaire.runtimeconfig.json
 C:\Users\zbcwise\Documents\GitHub\SolitaireWpf\Solitaire\Solitaire\bin\Debug\net7.0-windows\Solitaire.dll
 C:\Users\zbcwise\Documents\GitHub\SolitaireWpf\Solitaire\Solitaire\bin\Debug\net7.0-windows\Solitaire.pdb
-C:\Users\zbcwise\Documents\GitHub\SolitaireWpf\Solitaire\Solitaire\obj\Debug\net7.0-windows\Solitaire.csproj.AssemblyReference.cache
 C:\Users\zbcwise\Documents\GitHub\SolitaireWpf\Solitaire\Solitaire\obj\Debug\net7.0-windows\Card.g.cs
 C:\Users\zbcwise\Documents\GitHub\SolitaireWpf\Solitaire\Solitaire\obj\Debug\net7.0-windows\MainWindow.g.cs
 C:\Users\zbcwise\Documents\GitHub\SolitaireWpf\Solitaire\Solitaire\obj\Debug\net7.0-windows\App.g.cs

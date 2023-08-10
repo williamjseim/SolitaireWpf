@@ -24,9 +24,9 @@ namespace Solitaire
     }
     public enum BoardLocation
     {
-        Deck,
-        Board,
-        Ace
+        stock,
+        piles,
+        foundation
     }
     public partial class Card : UserControl
     {
