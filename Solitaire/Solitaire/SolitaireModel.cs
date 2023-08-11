@@ -106,6 +106,7 @@ namespace Solitaire
                 board.foundationPositions[i - 3] = board.pilePositions[i];
             }
             board.BoardMiddle = (int)(height / 3);
+            board.pileLength = (int)(height - board.BoardMiddle);
         }
 
         public void ReArrangeColumn()

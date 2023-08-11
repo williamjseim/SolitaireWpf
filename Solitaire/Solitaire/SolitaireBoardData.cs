@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 
 namespace Solitaire
 {
@@ -25,6 +25,7 @@ namespace Solitaire
 
         public int[] pilePositions = new int[7];
         public int BoardMiddle;
+        public int pileLength;
 
         public List<Card>[] piles = new List<Card>[]//the card columns/tableau
         {
@@ -49,7 +50,6 @@ namespace Solitaire
             new List<Card>(),
         };
         #endregion
-
         public bool ChangeCardLocation(Card[] cards, BoardLocation desiredLocation, int DesiredIndex)
         {
             if (CanCardBeAdded(cards[0], desiredLocation, DesiredIndex))
@@ -154,30 +154,45 @@ namespace Solitaire
             return false;
         }
 
+        public void SortBoard()
+        {
+            SortPiles();
+            SortFoundation();
+            SortStockAndWaste();
+        }
+
         public void SortPiles()
         {
+            int j = 0;
             foreach (List<Card> list in piles)
             {
+                int pileSpacing = BoardMiddle / list.Count;
                 for (int i = 0; i < list.Count; i++)
                 {
                     Canvas.SetZIndex(list[i], i+1);
                     list[i].IsHitTestVisible = list[i].IsRevealed;
-
+                    Canvas.SetLeft(list[i], pilePositions[j]);
+                    Canvas.SetTop(list[i], BoardMiddle + pileSpacing * i);
                 }
+                j++;
             }
         }
 
         public void SortFoundation()
         {
+            int j = 0;
             foreach (List<Card> list in foundations)
             {
                 for (int i = 0; i < list.Count; i++)
                 {
                     list[i].IsHitTestVisible = false;
                     Canvas.SetZIndex(list[i], 0);
+                    Canvas.SetLeft(list[i], foundationPositions[j]);
+                    Canvas.SetTop(list[i], foundationTop);
                 }
                 list.Last().IsHitTestVisible = true;
                 Canvas.SetZIndex(list.Last(), 1);
+                j++;
             }
         }
 
