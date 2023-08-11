@@ -18,10 +18,11 @@ namespace Solitaire
         public override void ReArrangeGameBoard(object? sender = null, RoutedEventArgs? e = null)
         {
             CalculateGameBoard();
-            ReArrangeColumn();
-            ReArrangeAceColumn();
-            ReArrangeCardStack();
-            ReArrangeCardPool();
+            //ReArrangeColumn();
+            //ReArrangeAceColumn();
+            //ReArrangeCardStack();
+            //ReArrangeCardPool();
+            board.SortBoard();
         }
 
         /// <summary>
@@ -109,51 +110,51 @@ namespace Solitaire
             board.pileLength = (int)(height - board.BoardMiddle);
         }
 
-        public void ReArrangeColumn()
-        {
-            for (int i = 0; i < board.piles.Length; i++)
-            {
-                try
-                {
-                    int cardSpacing = Math.Max((int)(view.GameBoard.Height - board.BoardMiddle) / board.piles[i].Count, 50);
-                    int j = 0;
-                    int zindex = 0;
-                    foreach (Card card in board.piles[i])
-                    {
-                        Canvas.SetTop(card, j + board.BoardMiddle);
-                        Canvas.SetLeft(card, board.pilePositions[i]/* + (int)((board.rowWidth - board.cardWidth) / 2)*/);
-                        Canvas.SetZIndex(card, zindex);
-                        j += cardSpacing;
-                        zindex++;
-                    }
-                    board.piles[i].Last().IsHitTestVisible = true;
-                }
-                catch { }
-            }
-        }
+        //public void ReArrangeColumn()
+        //{
+        //    for (int i = 0; i < board.piles.Length; i++)
+        //    {
+        //        try
+        //        {
+        //            int cardSpacing = Math.Max((int)(view.GameBoard.Height - board.BoardMiddle) / board.piles[i].Count, 50);
+        //            int j = 0;
+        //            int zindex = 0;
+        //            foreach (Card card in board.piles[i])
+        //            {
+        //                Canvas.SetTop(card, j + board.BoardMiddle);
+        //                Canvas.SetLeft(card, board.pilePositions[i]/* + (int)((board.rowWidth - board.cardWidth) / 2)*/);
+        //                Canvas.SetZIndex(card, zindex);
+        //                j += cardSpacing;
+        //                zindex++;
+        //            }
+        //            board.piles[i].Last().IsHitTestVisible = true;
+        //        }
+        //        catch { }
+        //    }
+        //}
 
-        public void ReArrangeAceColumn()
-        {
-            for (int i = 0; i < board.foundations.Length; i++)
-            {
-                if (board.foundations[i].Count > 0)
-                {
-                    foreach (Card card in board.foundations[i])
-                    {
-                        Canvas.SetZIndex(card, 0);
-                        Canvas.SetLeft(card, board.foundationPositions[card.column] + (int)((board.rowWidth - board.cardWidth) / 2));
-                        Canvas.SetTop(card, board.foundationTop);
-                    }
-                    Canvas.SetZIndex(board.foundations[i].Last(), 1);
-                }
-            }
-        }
+        //public void ReArrangeAceColumn()
+        //{
+        //    for (int i = 0; i < board.foundations.Length; i++)
+        //    {
+        //        if (board.foundations[i].Count > 0)
+        //        {
+        //            foreach (Card card in board.foundations[i])
+        //            {
+        //                Canvas.SetZIndex(card, 0);
+        //                Canvas.SetLeft(card, board.foundationPositions[card.column] + (int)((board.rowWidth - board.cardWidth) / 2));
+        //                Canvas.SetTop(card, board.foundationTop);
+        //            }
+        //            Canvas.SetZIndex(board.foundations[i].Last(), 1);
+        //        }
+        //    }
+        //}
 
-        public void ReArrangeCardStack()
-        {
-            Canvas.SetLeft(board.StockPlaceHolder, board.pilePositions[0] + (int)((board.rowWidth - board.cardWidth) / 2));
-            Canvas.SetTop(board.StockPlaceHolder, board.foundationTop);
-        }
+        //public void ReArrangeCardStack()
+        //{
+        //    Canvas.SetLeft(board.StockPlaceHolder, board.pilePositions[0] + (int)((board.rowWidth - board.cardWidth) / 2));
+        //    Canvas.SetTop(board.StockPlaceHolder, board.foundationTop);
+        //}
 
         public void ReArrangeCardPool()
         {
@@ -310,12 +311,12 @@ namespace Solitaire
                 if (card.location != BoardLocation.piles)
                 {
                     card.location = BoardLocation.piles;
-                    ReArrangeAceColumn();
+                    board.SortFoundation();
                 }
             }
             else
             {
-                ReArrangeColumn();
+                board.SortPiles();
             }
         }
 
@@ -332,7 +333,7 @@ namespace Solitaire
             {
                 board.piles[card.column].Remove(card);
                 RevealLastCardInColumn(card.column);
-                ReArrangeAceColumn();
+                board.SortFoundation();
             }
             board.foundations[desiredColumn].Add(card);
         }
@@ -385,7 +386,7 @@ namespace Solitaire
                         break;
                     }
                 }
-                ReArrangeAceColumn();
+                board.SortFoundation();
             }
         }
 
@@ -396,26 +397,28 @@ namespace Solitaire
                 RevealCard(board.piles[column].Last());
             }
         }
+
         void TakeCardsFromStack(object sender, MouseButtonEventArgs e)
         {
             if (board.waste?.Count > 0)
             {
-                List<Card> cards = new List<Card>();
-                for (int i = 0; i < Math.Clamp(board.waste.Count, 0, amountFromStack); i++)
+                //List<Card> cards = new List<Card>();
+                for (int i = 0; i < Math.Clamp(board.waste.Count, 0, board.stockPull); i++)
                 {
+                    Debug.Print("asda");
                     Card card = board.waste.First();
                     board.waste.RemoveFirst();
                     board.stock.Add(card);
                     card.Visibility = Visibility.Visible;
                     RevealCard(card);
-                    cards.Add(card);
+                    //cards.Add(card);
                 }
-                CreateCardPoolAction(cards.ToArray());
+                //CreateCardPoolAction(cards.ToArray());
                 if (board.waste.Count == 0)
                 {
                     //cardStackPlaceHolder.Visibility = Visibility.Hidden;
                 }
-                ReArrangeCardPool();
+                board.SortStockAndWaste();
             }
             else
             {
@@ -553,8 +556,10 @@ namespace Solitaire
             if (sender is Card card)
             {
                 Debug.WriteLine(card.ToString() + " " + Canvas.GetLeft(card) + " " + card.location + " zindex " + Panel.GetZIndex(card) + " column " + card.column);
+                Debug.WriteLine($"Card location piles { board.piles.Where(i=>i.Contains(card)).Any()} foundation {board.foundations.Where(i => i.Contains(card)).Any()} stock {board.stock.Contains(card)} waste {board.waste?.Contains(card)}");
             }
         }
+
         void HighLightCard(object sender, MouseEventArgs e)
         {
             if (sender is Card card && card.IsRevealed)

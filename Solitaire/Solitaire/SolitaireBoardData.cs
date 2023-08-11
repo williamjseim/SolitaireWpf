@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 
 namespace Solitaire
 {
@@ -16,6 +17,7 @@ namespace Solitaire
         }
 
         #region BoardData
+        public int stockPull = 1;
         public LinkedList<Card>? waste;//the 3 cards besides the card stack
         public Card StockPlaceHolder;
         public List<Card> stock;//left over cards
@@ -52,13 +54,26 @@ namespace Solitaire
         #endregion
         public bool ChangeCardLocation(Card[] cards, BoardLocation desiredLocation, int DesiredIndex)
         {
-            if (CanCardBeAdded(cards[0], desiredLocation, DesiredIndex))
+            if (cards.First().location == BoardLocation.stock)
+            {
+                if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile))
+                {
+                    foreach (Card card in cards)
+                    {
+                        waste?.Remove(card);
+                        card.location = desiredLocation;
+                        card.column = DesiredIndex;
+                        desiredPile.Add(card);
+                    }
+                }
+            }
+            else if (CanCardBeAdded(cards[0], desiredLocation, DesiredIndex))
             {
                 //removeCard
                 if (GetCardPile(cards[0].location, cards[0].column, out ICollection<Card> originPile))
                 {
                     //add card
-                    if(GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile))
+                    if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile))
                     {
                         foreach (Card card in cards)
                         {
@@ -68,7 +83,7 @@ namespace Solitaire
                             desiredPile.Add(card);
                         }
                     }
-                    if(originPile.Count > 0)
+                    if (originPile.Count > 0)
                         originPile.Last().IsRevealed = true;
                 }
                 return true;
@@ -78,17 +93,17 @@ namespace Solitaire
 
         private bool CanCardBeAdded(Card card, BoardLocation desiredLocation, int DesiredIndex)
         {
-            if(desiredLocation == BoardLocation.piles && desiredLocation >= 0)
+            if (desiredLocation == BoardLocation.piles && desiredLocation >= 0)
             {
-                    Debug.Print("ass");
-                if(GetCardPile(desiredLocation,DesiredIndex, out ICollection<Card> cards) && PileRules(card, cards))
+                Debug.Print("ass");
+                if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> cards) && PileRules(card, cards))
                 {
                     return true;
                 }
             }
-            else if(desiredLocation == BoardLocation.foundation && desiredLocation >= 0)
+            else if (desiredLocation == BoardLocation.foundation && desiredLocation >= 0)
             {
-                    Debug.Print("foundation");
+                Debug.Print("foundation");
                 if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> cards) && FoundationRules(card, cards))
                 {
                     return true;
@@ -116,10 +131,6 @@ namespace Solitaire
                     case BoardLocation.piles:
                         cards = piles[index];
                         return true;
-                    case BoardLocation.stock:
-                        Debug.Print("stock");
-                        cards = stock;
-                        return true;
                     default:
                         cards = null;
                         return false;
@@ -130,11 +141,11 @@ namespace Solitaire
 
         private bool PileRules(Card card, ICollection<Card> cards)
         {
-            if(cards.Count == 0 && card.CardValue == CardValue.K)
+            if (cards.Count == 0 && card.CardValue == CardValue.K)
             {
                 return true;
             }
-            else if(cards.Count > 0 && card.CardValue == cards.Last().CardValue - 1 && card.Color != cards.Last().Color)
+            else if (cards.Count > 0 && card.CardValue == cards.Last().CardValue - 1 && card.Color != cards.Last().Color)
             {
                 return true;
             }
@@ -143,11 +154,11 @@ namespace Solitaire
 
         private bool FoundationRules(Card card, ICollection<Card> cards)
         {
-            if(cards.Count == 0 && card.CardValue == CardValue.A)
+            if (cards.Count == 0 && card.CardValue == CardValue.A)
             {
                 return true;
             }
-            else if(cards.Count > 0 && card.CardValue == cards.Last().CardValue + 1)
+            else if (cards.Count > 0 && card.CardValue == cards.Last().CardValue + 1)
             {
                 return true;
             }
@@ -156,8 +167,8 @@ namespace Solitaire
 
         public void SortBoard()
         {
-            SortPiles();
             SortFoundation();
+            SortPiles();
             SortStockAndWaste();
         }
 
@@ -166,13 +177,16 @@ namespace Solitaire
             int j = 0;
             foreach (List<Card> list in piles)
             {
-                int pileSpacing = BoardMiddle / list.Count;
-                for (int i = 0; i < list.Count; i++)
+                if (list.Count > 0)
                 {
-                    Canvas.SetZIndex(list[i], i+1);
-                    list[i].IsHitTestVisible = list[i].IsRevealed;
-                    Canvas.SetLeft(list[i], pilePositions[j]);
-                    Canvas.SetTop(list[i], BoardMiddle + pileSpacing * i);
+                    int pileSpacing = Math.Clamp(list.Count > 0 ? BoardMiddle / list.Count : 0, 0, 50);
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        Canvas.SetZIndex(list[i], i + 1);
+                        list[i].IsHitTestVisible = list[i].IsRevealed;
+                        Canvas.SetLeft(list[i], pilePositions[j]);
+                        Canvas.SetTop(list[i], BoardMiddle + pileSpacing * i);
+                    }
                 }
                 j++;
             }
@@ -183,32 +197,48 @@ namespace Solitaire
             int j = 0;
             foreach (List<Card> list in foundations)
             {
-                for (int i = 0; i < list.Count; i++)
+                if (list.Count > 0)
                 {
-                    list[i].IsHitTestVisible = false;
-                    Canvas.SetZIndex(list[i], 0);
-                    Canvas.SetLeft(list[i], foundationPositions[j]);
-                    Canvas.SetTop(list[i], foundationTop);
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        list[i].IsHitTestVisible = false;
+                        Canvas.SetZIndex(list[i], 0);
+                        Canvas.SetLeft(list[i], foundationPositions[j]);
+                        Canvas.SetTop(list[i], foundationTop);
+                    }
+                    list.Last().IsHitTestVisible = true;
+                    Canvas.SetZIndex(list.Last(), 1);
+                    j++;
                 }
-                list.Last().IsHitTestVisible = true;
-                Canvas.SetZIndex(list.Last(), 1);
-                j++;
             }
         }
 
         public void SortStockAndWaste()
         {
-            foreach(Card card in stock)
+            int cardPoolCount = stock.Count;
+            foreach (Card card in stock)
             {
                 card.Visibility = System.Windows.Visibility.Hidden;
-            }
-            if(waste != null)
-            foreach (Card card in waste)
-            {
-                Panel.SetZIndex(card, 0);
-                card.Visibility = Visibility.Hidden;
+                card.IsHitTestVisible = false;
                 Canvas.SetLeft(card, pilePositions[0]);
                 Canvas.SetTop(card, foundationTop);
+                Panel.SetZIndex(card, 0);
+            }
+            if (waste != null)
+            {
+                for (int i = cardPoolCount - 1, j = 3; i >= cardPoolCount - Math.Clamp(cardPoolCount, 1, 3); i--, j--)
+                {
+                    Card card = stock[i];
+                    card.IsRevealed = false;
+                    Panel.SetZIndex(card, 0);
+                    card.Visibility = Visibility.Visible;
+                    card.IsRevealed = true;
+                    card.IsHitTestVisible = true;
+                    Panel.SetZIndex(card,j);
+                    Canvas.SetLeft(card, pilePositions[1]+50*i);
+                    Canvas.SetTop(card, foundationTop);
+
+                }
             }
         }
     }
