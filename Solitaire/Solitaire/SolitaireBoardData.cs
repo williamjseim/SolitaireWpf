@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 
 namespace Solitaire
 {
@@ -18,7 +17,7 @@ namespace Solitaire
 
         #region BoardData
         public int stockPull = 1;
-        public LinkedList<Card>? waste;//the 3 cards besides the card stack
+        public LinkedList<Card>? waste = new();//the 3 cards besides the card stack
         public Card StockPlaceHolder;
         public List<Card> stock;//left over cards
 
@@ -56,11 +55,12 @@ namespace Solitaire
         {
             if (cards.First().location == BoardLocation.stock)
             {
-                if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile))
+                if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile) && CheckRules(desiredLocation, cards[0], desiredPile))
                 {
                     foreach (Card card in cards)
                     {
-                        waste?.Remove(card);
+                        waste.Remove(card);
+                        stock.Remove(card);
                         card.location = desiredLocation;
                         card.column = DesiredIndex;
                         desiredPile.Add(card);
@@ -73,7 +73,7 @@ namespace Solitaire
                 if (GetCardPile(cards[0].location, cards[0].column, out ICollection<Card> originPile))
                 {
                     //add card
-                    if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile))
+                    if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile) && CheckRules(desiredLocation, cards[0], desiredPile))
                     {
                         foreach (Card card in cards)
                         {
@@ -95,7 +95,6 @@ namespace Solitaire
         {
             if (desiredLocation == BoardLocation.piles && desiredLocation >= 0)
             {
-                Debug.Print("ass");
                 if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> cards) && PileRules(card, cards))
                 {
                     return true;
@@ -103,7 +102,6 @@ namespace Solitaire
             }
             else if (desiredLocation == BoardLocation.foundation && desiredLocation >= 0)
             {
-                Debug.Print("foundation");
                 if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> cards) && FoundationRules(card, cards))
                 {
                     return true;
@@ -136,13 +134,31 @@ namespace Solitaire
                         return false;
                 }
             }
-            catch { cards = null; return false; }
+            catch 
+            { 
+                cards = null; 
+                return false;
+            }
+        }
+
+        private bool CheckRules(BoardLocation location, Card card, ICollection<Card> cards)
+        {
+            if(location == BoardLocation.foundation)
+            {
+                return FoundationRules(card, cards);
+            }
+            if(location == BoardLocation.piles)
+            {
+                return PileRules(card, cards);
+            }
+            return false;
         }
 
         private bool PileRules(Card card, ICollection<Card> cards)
         {
             if (cards.Count == 0 && card.CardValue == CardValue.K)
             {
+                Debug.Print("asdwasd2x");
                 return true;
             }
             else if (cards.Count > 0 && card.CardValue == cards.Last().CardValue - 1 && card.Color != cards.Last().Color)
@@ -174,6 +190,7 @@ namespace Solitaire
 
         public void SortPiles()
         {
+            bool allCardReveled = true;
             int j = 0;
             foreach (List<Card> list in piles)
             {
@@ -182,6 +199,10 @@ namespace Solitaire
                     int pileSpacing = Math.Clamp(list.Count > 0 ? BoardMiddle / list.Count : 0, 0, 50);
                     for (int i = 0; i < list.Count; i++)
                     {
+                        if (list[i].IsRevealed != true)
+                        {
+                            allCardReveled = false;
+                        }
                         Canvas.SetZIndex(list[i], i + 1);
                         list[i].IsHitTestVisible = list[i].IsRevealed;
                         Canvas.SetLeft(list[i], pilePositions[j]);
@@ -215,7 +236,7 @@ namespace Solitaire
 
         public void SortStockAndWaste()
         {
-            int cardPoolCount = stock.Count;
+            int stockCount = waste.Count;
             foreach (Card card in stock)
             {
                 card.Visibility = System.Windows.Visibility.Hidden;
@@ -224,18 +245,18 @@ namespace Solitaire
                 Canvas.SetTop(card, foundationTop);
                 Panel.SetZIndex(card, 0);
             }
-            if (waste != null)
+            if (waste != null && waste.Count > 0)
             {
-                for (int i = cardPoolCount - 1, j = 3; i >= cardPoolCount - Math.Clamp(cardPoolCount, 1, 3); i--, j--)
+                for (int i = stockCount - 1, j = 3; i >= stockCount - Math.Clamp(stockCount, 1, 3); i--, j--)
                 {
-                    Card card = stock[i];
+                    Card card = waste.ElementAt(i);
                     card.IsRevealed = false;
                     Panel.SetZIndex(card, 0);
                     card.Visibility = Visibility.Visible;
                     card.IsRevealed = true;
                     card.IsHitTestVisible = true;
                     Panel.SetZIndex(card,j);
-                    Canvas.SetLeft(card, pilePositions[1]+50*i);
+                    Canvas.SetLeft(card, (pilePositions[1]+75*j) - card.ActualWidth / 2);
                     Canvas.SetTop(card, foundationTop);
 
                 }

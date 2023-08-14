@@ -66,7 +66,7 @@ namespace Solitaire
             foreach (Card card in cards)
             {
                 card.MouseMove += Card_MoveMouse;
-                card.MouseDoubleClick += MoveCardToAceStack;
+                //card.MouseDoubleClick += MoveCardToAceStack;
                 card.column = 0;
                 card.location = BoardLocation.stock;
                 card.MouseRightButtonDown += CardToString;
@@ -79,13 +79,12 @@ namespace Solitaire
             {
                 board.foundationPositions[i - 3] = board.pilePositions[i];
             }
-
             Canvas.SetLeft(board.StockPlaceHolder, board.pilePositions[0]);
             Canvas.SetTop(board.StockPlaceHolder, board.foundationTop);
             view?.GameBoard.Children.Add(board.StockPlaceHolder);
             Canvas.SetZIndex(board.StockPlaceHolder, 1);
             board.StockPlaceHolder.MouseLeftButtonDown += TakeCardsFromStack;
-            board.waste = new LinkedList<Card>(cards);
+            board.stock = new List<Card>(cards);
         }
 
         #region Rearrange
@@ -109,52 +108,6 @@ namespace Solitaire
             board.BoardMiddle = (int)(height / 3);
             board.pileLength = (int)(height - board.BoardMiddle);
         }
-
-        //public void ReArrangeColumn()
-        //{
-        //    for (int i = 0; i < board.piles.Length; i++)
-        //    {
-        //        try
-        //        {
-        //            int cardSpacing = Math.Max((int)(view.GameBoard.Height - board.BoardMiddle) / board.piles[i].Count, 50);
-        //            int j = 0;
-        //            int zindex = 0;
-        //            foreach (Card card in board.piles[i])
-        //            {
-        //                Canvas.SetTop(card, j + board.BoardMiddle);
-        //                Canvas.SetLeft(card, board.pilePositions[i]/* + (int)((board.rowWidth - board.cardWidth) / 2)*/);
-        //                Canvas.SetZIndex(card, zindex);
-        //                j += cardSpacing;
-        //                zindex++;
-        //            }
-        //            board.piles[i].Last().IsHitTestVisible = true;
-        //        }
-        //        catch { }
-        //    }
-        //}
-
-        //public void ReArrangeAceColumn()
-        //{
-        //    for (int i = 0; i < board.foundations.Length; i++)
-        //    {
-        //        if (board.foundations[i].Count > 0)
-        //        {
-        //            foreach (Card card in board.foundations[i])
-        //            {
-        //                Canvas.SetZIndex(card, 0);
-        //                Canvas.SetLeft(card, board.foundationPositions[card.column] + (int)((board.rowWidth - board.cardWidth) / 2));
-        //                Canvas.SetTop(card, board.foundationTop);
-        //            }
-        //            Canvas.SetZIndex(board.foundations[i].Last(), 1);
-        //        }
-        //    }
-        //}
-
-        //public void ReArrangeCardStack()
-        //{
-        //    Canvas.SetLeft(board.StockPlaceHolder, board.pilePositions[0] + (int)((board.rowWidth - board.cardWidth) / 2));
-        //    Canvas.SetTop(board.StockPlaceHolder, board.foundationTop);
-        //}
 
         public void ReArrangeCardPool()
         {
@@ -367,29 +320,6 @@ namespace Solitaire
             }
         }
 
-        public void MoveCardToAceStack(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is Card card && card.location != BoardLocation.foundation)
-            {
-                for (int i = 0; i < board.foundations.Length; i++)
-                {
-                    if (CanCardBeAddedToAceStack(card, i))
-                    {
-                        board.piles[card.column].Remove(card);
-                        RevealCard(board.piles[card.column].Last());
-                        RevealLastCardInColumn(card.column);
-                        board.foundations[i].Add(card);
-                        card.location = BoardLocation.foundation;
-                        card.column = i;
-                        Canvas.SetLeft(card, board.foundationPositions[i]);
-                        Canvas.SetTop(card, board.foundationTop);
-                        break;
-                    }
-                }
-                board.SortFoundation();
-            }
-        }
-
         public void RevealLastCardInColumn(int column)
         {
             if (board.piles[column].Count > 0)
@@ -400,15 +330,14 @@ namespace Solitaire
 
         void TakeCardsFromStack(object sender, MouseButtonEventArgs e)
         {
-            if (board.waste?.Count > 0)
+            if (board.stock.Count > 0)
             {
                 //List<Card> cards = new List<Card>();
-                for (int i = 0; i < Math.Clamp(board.waste.Count, 0, board.stockPull); i++)
+                for (int i = 0; i < Math.Clamp(board.stock.Count, 0, board.stockPull); i++)
                 {
-                    Debug.Print("asda");
-                    Card card = board.waste.First();
-                    board.waste.RemoveFirst();
-                    board.stock.Add(card);
+                    Card card = board.stock.First();
+                    board.stock.RemoveAt(0);
+                    board.waste.AddLast(card);
                     card.Visibility = Visibility.Visible;
                     RevealCard(card);
                     //cards.Add(card);
@@ -422,132 +351,11 @@ namespace Solitaire
             }
             else
             {
-                board.waste = new(board.stock);
-                board.stock.Clear();
+                board.stock = new(board.waste);
+                board.waste.Clear();
                 ReArrangeGameBoard();
                 //cardStackPlaceHolder.Visibility = Visibility.Visible;
             }
-        }
-        #endregion
-
-        #region ChangeParent
-
-        bool AddCardToNewParent(Card card, BoardLocation desiredLocation, int desiredColumn)
-        {
-            if (desiredLocation == BoardLocation.piles)
-            {
-                card.column = desiredColumn;
-                board.piles[desiredColumn].Add(card);
-                card.location = BoardLocation.piles;
-                return true;
-            }
-            else if (desiredLocation == BoardLocation.foundation)
-            {
-                card.column = desiredColumn;
-                board.foundations[desiredColumn].Add(card);
-                card.location = BoardLocation.foundation;
-                return true;
-            }
-            return false;
-        }
-
-        bool RemoveCardFromParent(Card card)
-        {
-            switch (card.location)
-            {
-                case BoardLocation.piles:
-                    board.piles[card.column].Remove(card);
-                    RevealLastCardInColumn(card.column);
-                    return true;
-                case BoardLocation.foundation:
-                    board.foundations[card.column].Remove(card);
-                    if (board.foundations[card.column].Count > 0)
-                        RevealCard(board.foundations[card.column].Last());
-                    return true;
-                case BoardLocation.stock:
-                    board.stock.Remove(card);
-                    if (board.foundations[card.column].Count > 0)
-                        if (board.stock.Count > 0)
-                            RevealCard(board.stock.Last());
-                    return true;
-            }
-            return false;
-        }
-        #endregion
-
-        #region Verify
-        bool BoardColumnVerify(Card card, int desiredColumn)
-        {
-            if (board.piles[desiredColumn].Count > 0)
-            {
-                Card ParentCard = board.piles[desiredColumn].Last();
-                if (ParentCard.Color != card.Color && ParentCard.CardValue == card.CardValue + 1)
-                {
-                    return true;
-                }
-            }
-            else if (card.CardValue == CardValue.K)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        bool AceColumnVerify(Card card, int desiredColumn)
-        {
-            if (board.foundations[desiredColumn].Count > 0)
-            {
-                Card parentCard = board.foundations[desiredColumn].Last();
-                if (parentCard.suit == card.suit && parentCard.CardValue == card.CardValue - 1)
-                {
-                    return true;
-                }
-            }
-            else if (card.CardValue == CardValue.A)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        bool TryChangeCardPosition(Card card, BoardLocation desiredLocation, int desiredColumn)
-        {
-            //Debug.WriteLine("trychange " + card.ToString());
-            if (CanCardBeAdded(card, desiredLocation, desiredColumn))
-            {
-                //Debug.WriteLine("canadd " + card.ToString());
-                if (RemoveCardFromParent(card))
-                {
-                    return AddCardToNewParent(card, desiredLocation, desiredColumn);
-                }
-            }
-            return false;
-        }
-
-        bool CanCardBeAdded(Card card, BoardLocation desiredLocation, int desiredColumn)
-        {
-            if (desiredLocation == BoardLocation.piles && BoardColumnVerify(card, desiredColumn))
-            {
-                return true;
-            }
-            else if (desiredLocation == BoardLocation.foundation && AceColumnVerify(card, desiredColumn))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        bool CanCardBeAddedToAceStack(Card card, int desiredColumn)//checks if the dsired ace stack is empty or value i one above
-        {
-            if (card.CardValue == CardValue.A)
-            {
-                return true;
-            }
-            else if (board.foundations[desiredColumn].Count > 0 && board.foundations[desiredColumn].Last().suit == card.suit && board.foundations[desiredColumn].Last().CardValue == card.CardValue - 1)
-            {
-                return true;
-            }
-            return false;
         }
         #endregion
 
@@ -581,53 +389,52 @@ namespace Solitaire
 
         #region Action
 
-        Stack<Actions.Action> actions = new();
 
-        public void Undo(object sender, RoutedEventArgs e)
-        {
-            Debug.Print(actions.Count + " actions");
-            if (actions.Count > 0)
-            {
-                Debug.Print(actions.Peek().card.ToString() + "aasss");
-                if (actions.Peek() is CardMoved obj)
-                {
-                    foreach (Card card in obj.card)
-                    {
-                        RemoveCardFromParent(card);
-                        HideLastCard(obj.LastLocation, obj.lastColumn);
-                        AddCardToNewParent(card, obj.LastLocation, obj.lastColumn);
-                        ReArrangeGameBoard();
-                        actions.Pop();
-                    }
-                }
-                else if (actions.Peek() is CardRevealed revealedCard)
-                {
-                    foreach (Card card in revealedCard.card)
-                    {
-                        card.IsRevealed = false;
-                        actions.Pop();
-                    }
-                }
-                else if (actions.Peek() is CardPoolAction cardTurned)
-                {
-                    foreach (Card card in cardTurned.card)
-                    {
-                        if (board.stock.Contains(card))
-                        {
-                            board.stock.Remove(card);
-                            board.waste?.AddFirst(card);
-                        }
-                        else if (board.waste.Contains(card))
-                        {
-                            board.waste.Remove(card);
-                            board.stock.Add(card);
-                        }
-                    }
-                    actions.Pop();
-                    ReArrangeGameBoard();
-                }
-            }
-        }
+        //public void Undo(object sender, RoutedEventArgs e)
+        //{
+        //    Debug.Print(actions.Count + " actions");
+        //    if (actions.Count > 0)
+        //    {
+        //        Debug.Print(actions.Peek().card.ToString() + "aasss");
+        //        if (actions.Peek() is CardMoved obj)
+        //        {
+        //            foreach (Card card in obj.card)
+        //            {
+        //                RemoveCardFromParent(card);
+        //                HideLastCard(obj.LastLocation, obj.lastColumn);
+        //                AddCardToNewParent(card, obj.LastLocation, obj.lastColumn);
+        //                ReArrangeGameBoard();
+        //                actions.Pop();
+        //            }
+        //        }
+        //        else if (actions.Peek() is CardRevealed revealedCard)
+        //        {
+        //            foreach (Card card in revealedCard.card)
+        //            {
+        //                card.IsRevealed = false;
+        //                actions.Pop();
+        //            }
+        //        }
+        //        else if (actions.Peek() is CardPoolAction cardTurned)
+        //        {
+        //            foreach (Card card in cardTurned.card)
+        //            {
+        //                if (board.stock.Contains(card))
+        //                {
+        //                    board.stock.Remove(card);
+        //                    board.waste?.AddFirst(card);
+        //                }
+        //                else if (board.waste.Contains(card))
+        //                {
+        //                    board.waste.Remove(card);
+        //                    board.stock.Add(card);
+        //                }
+        //            }
+        //            actions.Pop();
+        //            ReArrangeGameBoard();
+        //        }
+        //    }
+        //}
 
         private void HideLastCard(BoardLocation location, int column)
         {
@@ -639,16 +446,6 @@ namespace Solitaire
             {
                 board.stock.Last().IsHitTestVisible = false;
             }
-        }
-
-        private void CreateCardPoolAction(Card[] card)
-        {
-            actions.Push(new CardPoolAction(card));
-        }
-
-        public void CreateCardMovedAction(Card[] card, BoardLocation oldLocation, int oldColumn)
-        {
-            actions.Push(new CardMoved(card, oldLocation, oldColumn));
         }
         #endregion
     }
