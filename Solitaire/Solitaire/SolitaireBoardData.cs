@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Solitaire;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,7 +15,11 @@ namespace Solitaire
             stock = new();
         }
 
+        Stack<CardMoved> moves = new Stack<CardMoved>();
+
         #region BoardData
+
+        public bool allCardsReveled = true;
         public int stockPull = 1;
         public LinkedList<Card>? waste = new();//the 3 cards besides the card stack
         public Card StockPlaceHolder;
@@ -51,6 +55,7 @@ namespace Solitaire
             new List<Card>(),
         };
         #endregion
+
         public bool ChangeCardLocation(Card[] cards, BoardLocation desiredLocation, int DesiredIndex)
         {
             if (cards.First().location == BoardLocation.stock)
@@ -158,7 +163,6 @@ namespace Solitaire
         {
             if (cards.Count == 0 && card.CardValue == CardValue.K)
             {
-                Debug.Print("asdwasd2x");
                 return true;
             }
             else if (cards.Count > 0 && card.CardValue == cards.Last().CardValue - 1 && card.Color != cards.Last().Color)
@@ -167,7 +171,7 @@ namespace Solitaire
             }
             return false;
         }
-
+        
         private bool FoundationRules(Card card, ICollection<Card> cards)
         {
             if (cards.Count == 0 && card.CardValue == CardValue.A)
@@ -211,6 +215,7 @@ namespace Solitaire
                 }
                 j++;
             }
+            this.allCardsReveled = allCardReveled;
         }
 
         public void SortFoundation()
@@ -262,5 +267,35 @@ namespace Solitaire
                 }
             }
         }
+
+        public void CheckIfGameIsWon()
+        {
+            if((waste.Count == 0 || waste == null) && (stock.Count == 0 || stock == null) && allCardsReveled)
+            {
+                //game won
+            }
+        }
+
+        public void Undo()
+        {
+            if(this.moves.TryPop(out CardMoved? move))
+            {
+                Card card = move.movedCards[0];
+            }
+        }
     }
+}
+
+public class CardMoved
+{
+    public CardMoved(Card[] cards, BoardLocation originLocation)
+    {
+        this.movedCards = cards;
+        this.originLocation = originLocation;
+        this.TopCardIndex = cards[0].column;
+    }
+
+    public Card[] movedCards;
+    public BoardLocation originLocation;
+    public int TopCardIndex;
 }

@@ -1,7 +1,5 @@
-﻿using Solitaire.Actions;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -18,10 +16,6 @@ namespace Solitaire
         public override void ReArrangeGameBoard(object? sender = null, RoutedEventArgs? e = null)
         {
             CalculateGameBoard();
-            //ReArrangeColumn();
-            //ReArrangeAceColumn();
-            //ReArrangeCardStack();
-            //ReArrangeCardPool();
             board.SortBoard();
         }
 
@@ -108,42 +102,6 @@ namespace Solitaire
             board.BoardMiddle = (int)(height / 3);
             board.pileLength = (int)(height - board.BoardMiddle);
         }
-
-        public void ReArrangeCardPool()
-        {
-            int cardPoolCount = board.stock.Count;
-            if (board.stock.Count > 0)
-            {
-                for (int i = 0; i < board.stock.Count; i++)
-                {
-                    board.stock[i].IsHitTestVisible = false;
-                    board.stock[i].Visibility = Visibility.Hidden;
-                    Canvas.SetLeft(board.stock[i], board.pilePositions[0]);
-                    Canvas.SetTop(board.stock[i], board.foundationTop);
-                    Panel.SetZIndex(board.stock[i], 0);
-                }
-                for (int i = cardPoolCount - 1, j = 3; i >= cardPoolCount - Math.Clamp(cardPoolCount, 1, 3); i--, j--)
-                {
-                    Card card = board.stock[i];
-                    RevealCard(card, false);
-                    Canvas.SetLeft(card, board.pilePositions[1] + ((board.cardWidth / 3 * j) - board.cardWidth / 3));
-                    Panel.SetZIndex(card, j);
-                    card.Visibility = Visibility.Visible;
-                }
-                RevealCard(board.stock.Last());
-            }
-            else
-            {
-                if (board.waste != null)
-                    foreach (Card card in board.waste)
-                    {
-                        Panel.SetZIndex(card, 0);
-                        card.Visibility = Visibility.Hidden;
-                        Canvas.SetLeft(card, board.pilePositions[0]);
-                        Canvas.SetTop(card, board.foundationTop);
-                    }
-            }
-        }
         #endregion
 
         #region MoveCard
@@ -189,34 +147,6 @@ namespace Solitaire
                 Point mousePos = e.GetPosition(Application.Current.MainWindow);
                 BoardLocation desiredLocation = GetDesiredLocation(mousePos, out int index);
                 board.ChangeCardLocation(draggedCards.ToArray(), desiredLocation, index);
-                //foreach (Card obj in draggedCards)
-                //{
-                //    obj.IsHitTestVisible = true;
-                //}
-                //Debug.Print("dragged" + draggedCards.Count);
-                //BoardLocation newPosition = BoardLocation.piles;
-                //int column = 0;
-                //List<Card> cardsMoved = new List<Card>();
-                //foreach (Card obj in draggedCards)
-                //{
-                //    int middle = board.BoardMiddle;
-                //    if (mousePos.Y >= middle)
-                //    {
-                //        column = board.pilePositions.Where(x => x < mousePos.X/* + (obj.ActualWidth / 2)*/).Count() - 1;
-                //        newPosition = BoardLocation.piles;
-                //        if(TryChangeCardPosition(obj, BoardLocation.piles, column))
-                //        cardsMoved.Add(obj);
-                //    }
-                //    else if (mousePos.Y <= middle && board.foundationPositions.Where(x => x < mousePos.X).Any())
-                //    {
-                //        Debug.WriteLine("ace");
-                //        column = board.foundationPositions.Where(x => x < Canvas.GetLeft(obj) + (obj.ActualWidth / 2)).Count() - 1;
-                //        newPosition = BoardLocation.foundation;
-                //        if(TryChangeCardPosition(obj, BoardLocation.foundation, column))
-                //        cardsMoved.Add(obj);
-                //    }
-                //}
-                //CreateCardMovedAction(cardsMoved.ToArray(), newPosition, column);
             }
             foreach (Card obj in draggedCards)
             {
@@ -238,57 +168,6 @@ namespace Solitaire
                 return BoardLocation.piles;
             }
             
-        }
-
-        public void ChangeCardColumn(Card card, int desiredColumn)
-        {
-            if (Canvas.GetTop(card) > board.BoardMiddle - 125)
-            {
-                if (card.location == BoardLocation.stock)
-                {
-                    card.location = BoardLocation.piles;
-                    board.stock.Remove(card);
-                    RevealCard(board.stock.Last());
-                    card.MouseEnter += HighLightCard;
-                    card.MouseLeave += DeHighLightCard;
-                }
-                else
-                {
-                    board.piles[card.column].Remove(card);
-                    RevealLastCardInColumn(card.column);
-                }
-                Debug.WriteLine(board.foundationPositions.Length + " asdwasdw");
-                board.piles[desiredColumn].Add(card);
-                Canvas.SetZIndex(card, board.piles[desiredColumn].Count);
-                card.column = desiredColumn;
-                if (card.location != BoardLocation.piles)
-                {
-                    card.location = BoardLocation.piles;
-                    board.SortFoundation();
-                }
-            }
-            else
-            {
-                board.SortPiles();
-            }
-        }
-
-        public void ChangeAceColumn(Card card, int desiredColumn)
-        {
-            card.column = desiredColumn;
-            if (card.location == BoardLocation.stock)
-            {
-                board.stock.Remove(card);
-                RevealCard(board.stock.Last());
-                card.location = BoardLocation.foundation;
-            }
-            else if (card.location == BoardLocation.piles)
-            {
-                board.piles[card.column].Remove(card);
-                RevealLastCardInColumn(card.column);
-                board.SortFoundation();
-            }
-            board.foundations[desiredColumn].Add(card);
         }
 
         /// <summary>
@@ -317,14 +196,6 @@ namespace Solitaire
                     Canvas.SetLeft(card, mouse.X - card.ActualWidth / 2);
                     Canvas.SetTop(card, mouse.Y - card.ActualHeight / 2);
                 }
-            }
-        }
-
-        public void RevealLastCardInColumn(int column)
-        {
-            if (board.piles[column].Count > 0)
-            {
-                RevealCard(board.piles[column].Last());
             }
         }
 
