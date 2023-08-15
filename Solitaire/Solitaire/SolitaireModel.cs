@@ -28,6 +28,7 @@ namespace Solitaire
         {
             List<Card> cards = CardContructor.GenerateCards();
             CalculateGameBoard();
+            view.Undo.PreviewMouseLeftButtonDown += board.Undo;
             for (int column = 0; column < board.pilePositions.Length; column++)
             {
                 //Canvas canvasColumn = (Canvas)CardGrid.Children[column];
@@ -114,22 +115,24 @@ namespace Solitaire
                     if (card.location == BoardLocation.piles/* && board.BoardColumns[card.column].Last() != card*/)
                     {
                         int index = board.piles[card.column].IndexOf(card);
-                        for (int i = index; i < board.piles[card.column].Count; i++)
+                        if(index != -1)
                         {
-                            draggedCards.Add(board.piles[card.column][i]);
-                        }
-                        foreach (Card obj in draggedCards)
-                        {
-                            obj.IsHitTestVisible = false;
-                            Panel.SetZIndex(obj, 50);
-                            DataObject dataObject = new DataObject();
-                            dataObject.SetData(DataFormats.Serializable, obj);
-                            DragDrop.DoDragDrop(obj, dataObject, DragDropEffects.Move);
+                            for (int i = index; i < board.piles[card.column].Count; i++)
+                            {
+                                draggedCards.Add(board.piles[card.column][i]);
+                            }
+                            foreach (Card obj in draggedCards)
+                            {
+                                obj.IsHitTestVisible = false;
+                                Panel.SetZIndex(obj, 50);
+                                DataObject dataObject = new DataObject();
+                                dataObject.SetData(DataFormats.Serializable, obj);
+                                DragDrop.DoDragDrop(obj, dataObject, DragDropEffects.Move);
+                            }
                         }
                     }
                     else
                     {
-                        Debug.WriteLine("card");
                         draggedCards.Add(card);
                         card.IsHitTestVisible = false;
                         Panel.SetZIndex(card, 50);

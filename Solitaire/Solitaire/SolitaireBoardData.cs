@@ -1,6 +1,7 @@
 ﻿using Solitaire;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -62,6 +63,7 @@ namespace Solitaire
             {
                 if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile) && CheckRules(desiredLocation, cards[0], desiredPile))
                 {
+                    this.moves.Push(new CardMoved(cards, BoardLocation.stock));
                     foreach (Card card in cards)
                     {
                         waste.Remove(card);
@@ -80,6 +82,7 @@ namespace Solitaire
                     //add card
                     if (GetCardPile(desiredLocation, DesiredIndex, out ICollection<Card> desiredPile) && CheckRules(desiredLocation, cards[0], desiredPile))
                     {
+                        this.moves.Push(new CardMoved(cards, cards[0].location));
                         foreach (Card card in cards)
                         {
                             originPile.Remove(card);
@@ -276,12 +279,40 @@ namespace Solitaire
             }
         }
 
-        public void Undo()
+        public void Undo(object sender, RoutedEventArgs e)
         {
+            Debug.Print("asdwas"+moves.Count);
             if(this.moves.TryPop(out CardMoved? move))
             {
                 Card card = move.movedCards[0];
+                if(move.originLocation == BoardLocation.stock)
+                {
+                    if(GetCardPile(card.location, card.column, out ICollection<Card> originPile))
+                    {
+                        foreach (Card obj in move.movedCards)
+                        {
+                            originPile.Remove(obj);
+                            waste.AddLast(obj);
+                            obj.location = move.originLocation;
+                            obj.column = move.topCardColumn;
+                        }
+                    }
+                }
+                else if(GetCardPile(card.location, card.column, out ICollection<Card> originPiles))
+                {
+                    if(GetCardPile(move.originLocation, move.topCardColumn, out ICollection<Card> desiredPile))
+                    {
+                        foreach (Card obj in move.movedCards)
+                        {
+                            originPiles.Remove(obj);
+                            desiredPile.Add(obj);
+                            obj.location = move.originLocation;
+                            obj.column = move.topCardColumn;
+                        }
+                    }
+                }
             }
+            SortBoard();
         }
     }
 }
@@ -292,10 +323,20 @@ public class CardMoved
     {
         this.movedCards = cards;
         this.originLocation = originLocation;
-        this.TopCardIndex = cards[0].column;
+        this.topCardColumn = cards[0].column;
     }
 
     public Card[] movedCards;
     public BoardLocation originLocation;
-    public int TopCardIndex;
+    public int topCardColumn;
+}
+
+public class StockTurned
+{
+
+}
+
+public abstract class Move
+{
+
 }
