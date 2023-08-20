@@ -16,7 +16,7 @@ namespace Solitaire
             stock = new();
         }
 
-        Stack<CardMoved> moves = new Stack<CardMoved>();
+        public Stack<Move> moves = new Stack<Move>();
 
         #region BoardData
 
@@ -24,7 +24,7 @@ namespace Solitaire
         public int stockPull = 1;
         public LinkedList<Card>? waste = new();//the 3 cards besides the card stack
         public Card StockPlaceHolder;
-        public List<Card> stock;//left over cards
+        public LinkedList<Card> stock;//left over cards
 
         public int cardWidth = 252;
         public double rowWidth;
@@ -57,6 +57,7 @@ namespace Solitaire
         };
         #endregion
 
+        //changes the parent list of moved cards and updates the card so it reflects the move
         public bool ChangeCardLocation(Card[] cards, BoardLocation desiredLocation, int DesiredIndex)
         {
             if (cards.First().location == BoardLocation.stock)
@@ -149,6 +150,7 @@ namespace Solitaire
             }
         }
 
+        //checks the rules based on card's desired location
         private bool CheckRules(BoardLocation location, Card card, ICollection<Card> cards)
         {
             if(location == BoardLocation.foundation)
@@ -181,7 +183,7 @@ namespace Solitaire
             {
                 return true;
             }
-            else if (cards.Count > 0 && card.CardValue == cards.Last().CardValue + 1)
+            else if (cards.Count > 0 && card.CardValue == cards.Last().CardValue + 1 && card.suit == cards.First().suit)
             {
                 return true;
             }
@@ -282,33 +284,56 @@ namespace Solitaire
         public void Undo(object sender, RoutedEventArgs e)
         {
             Debug.Print("asdwas"+moves.Count);
-            if(this.moves.TryPop(out CardMoved? move))
+            if(this.moves.TryPop(out Move? obj))
             {
-                Card card = move.movedCards[0];
-                if(move.originLocation == BoardLocation.stock)
+                if(obj is CardMoved cardMove)
                 {
-                    if(GetCardPile(card.location, card.column, out ICollection<Card> originPile))
+                    Card card = cardMove.movedCards[0];
+                    if(cardMove.originLocation == BoardLocation.stock)
                     {
-                        foreach (Card obj in move.movedCards)
+                        if(GetCardPile(card.location, card.column, out ICollection<Card> originPile))
                         {
-                            originPile.Remove(obj);
-                            waste.AddLast(obj);
-                            obj.location = move.originLocation;
-                            obj.column = move.topCardColumn;
+                            foreach (Card pileCard in cardMove.movedCards)
+                            {
+                                originPile.Remove(pileCard);
+                                waste.AddLast(pileCard);
+                                pileCard.location = cardMove.originLocation;
+                                pileCard.column = cardMove.topCardColumn;
+                            }
+                        }
+                    }
+                    else if(GetCardPile(card.location, card.column, out ICollection<Card> originPiles))
+                    {
+                        if(GetCardPile(cardMove.originLocation, cardMove.topCardColumn, out ICollection<Card> desiredPile))
+                        {
+                            foreach (Card pileCard in cardMove.movedCards)
+                            {
+                                originPiles.Remove(pileCard);
+                                if(desiredPile.Count > 0 && cardMove.originLocation != BoardLocation.foundation)
+                                {
+                                    desiredPile.Last().HideCard();
+                                }
+                                desiredPile.Add(pileCard);
+                                pileCard.location = cardMove.originLocation;
+                                pileCard.column = cardMove.topCardColumn;
+                            }
                         }
                     }
                 }
-                else if(GetCardPile(card.location, card.column, out ICollection<Card> originPiles))
+                else if(obj is StockTurned stockTurn)
                 {
-                    if(GetCardPile(move.originLocation, move.topCardColumn, out ICollection<Card> desiredPile))
+                    if(waste.Count == 0)
                     {
-                        foreach (Card obj in move.movedCards)
-                        {
-                            originPiles.Remove(obj);
-                            desiredPile.Add(obj);
-                            obj.location = move.originLocation;
-                            obj.column = move.topCardColumn;
-                        }
+                        waste = new LinkedList<Card>(stock);
+                        stock.Clear();
+                    }
+                    else
+                    {
+                        Card card = waste.Last();
+                        waste.RemoveLast();
+                        stock.AddFirst(card);
+                        card.Visibility = Visibility.Visible;
+                        card.IsRevealed = true;
                     }
                 }
             }
@@ -317,7 +342,7 @@ namespace Solitaire
     }
 }
 
-public class CardMoved
+public class CardMoved : Move
 {
     public CardMoved(Card[] cards, BoardLocation originLocation)
     {
@@ -331,9 +356,9 @@ public class CardMoved
     public int topCardColumn;
 }
 
-public class StockTurned
+public class StockTurned : Move
 {
-
+    
 }
 
 public abstract class Move
